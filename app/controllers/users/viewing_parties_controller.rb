@@ -5,6 +5,7 @@ module Users
     before_action :load_host
     before_action :load_movie
     before_action :validate_duration, only: [:create]
+    before_action :authorize!
 
     def new
       @all_users = User.where.not(id: @host)
@@ -66,6 +67,15 @@ module Users
       string_ids = params.permit(user_ids: [])[:user_ids]
       string_ids.shift
       string_ids.map(&:to_i)
+    end
+
+    def authorize! 
+      unless current_user
+        flash[:notice] = "You must be logged in to create a viewing party"
+        # user story wants the vistor to be redirected to the movie show page
+        # but ou have to be logged in as a user to see the movie show page (user_movie_path)
+        redirect_to root_path
+      end
     end
   end
 end
